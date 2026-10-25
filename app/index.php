@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Digitalia - E-Library</title>
 
     <style>
@@ -62,6 +63,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .button {
@@ -82,6 +84,11 @@
             color: #2563eb;
             border: 1px solid #2563eb;
         }
+
+        .guest {
+            background: #111827;
+            color: white;
+        }
     </style>
 </head>
 
@@ -92,8 +99,12 @@
 </header>
 
 <section class="hero">
+
     <div class="hero-content">
-        <h1>Welcome to <span class="highlight">Digitalia</span></h1>
+
+        <h1>
+            Welcome to <span class="highlight">Digitalia</span>
+        </h1>
 
         <p>
             An integrated digital library for discovering, exploring,
@@ -101,10 +112,23 @@
         </p>
 
         <div class="buttons">
-            <a href="login.php" class="button primary">Log In</a>
-            <a href="register.php" class="button secondary">Register</a>
+
+            <a href="login.php" class="button primary">
+                Log In
+            </a>
+
+            <a href="register.php" class="button secondary">
+                Register
+            </a>
+
+            <a href="guest.php" class="button guest">
+                Continue as Guest
+            </a>
+
         </div>
+
     </div>
+
 </section>
 
 </body>
