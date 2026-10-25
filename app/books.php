@@ -1,9 +1,14 @@
 <?php
 
+session_start();
+
 require_once __DIR__ . '/config/database.php';
 
 $search = trim($_GET['search'] ?? '');
 $category = trim($_GET['category'] ?? '');
+
+$isLoggedIn = isset($_SESSION['user_id']);
+$user_id = $_SESSION['user_id'] ?? null;
 
 $sql = "
     SELECT id, title, author, category, description, file_url
@@ -52,6 +57,25 @@ $categoryStmt = $pdo->query(
 
 $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
 
+/*
+ * Get the books already saved by the logged-in user.
+ */
+
+$savedBooks = [];
+
+if ($isLoggedIn) {
+
+    $favoriteStmt = $pdo->prepare(
+        "SELECT book_id
+         FROM favorites
+         WHERE user_id = ?"
+    );
+
+    $favoriteStmt->execute([$user_id]);
+
+    $savedBooks = $favoriteStmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -77,6 +101,25 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
     <p>
         Explore the available books in the Digitalia library.
     </p>
+
+    <?php if ($isLoggedIn): ?>
+
+        <p>
+            <a href="my-library.php">
+                My Library
+            </a>
+        </p>
+
+    <?php else: ?>
+
+        <p>
+            <a href="login.php">
+                Log in
+            </a>
+            to save books to My Library.
+        </p>
+
+    <?php endif; ?>
 
     <hr>
 
@@ -177,12 +220,50 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                 </p>
 
                 <p>
+
                     <a
                         href="download.php?book_id=<?php echo $book['id']; ?>"
                     >
                         Download Book
                     </a>
+
                 </p>
+
+                <?php if ($isLoggedIn): ?>
+
+                    <?php if (in_array($book['id'], $savedBooks)): ?>
+
+                        <p>
+                            <strong>
+                                Already in My Library
+                            </strong>
+                        </p>
+
+                    <?php else: ?>
+
+                        <p>
+
+                            <a
+                                href="add-favorite.php?book_id=<?php echo $book['id']; ?>"
+                            >
+                                Save to My Library
+                            </a>
+
+                        </p>
+
+                    <?php endif; ?>
+
+                <?php else: ?>
+
+                    <p>
+
+                        <a href="login.php">
+                            Log in to save this book
+                        </a>
+
+                    </p>
+
+                <?php endif; ?>
 
             </div>
 
