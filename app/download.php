@@ -4,37 +4,43 @@ session_start();
 
 require_once __DIR__ . '/config/database.php';
 
-$book_id = isset($_GET['book_id']) ? (int) $_GET['book_id'] : 0;
+$book_id = isset($_GET['book_id'])
+    ? (int) $_GET['book_id']
+    : 0;
 
 if ($book_id <= 0) {
     die("Invalid book.");
 }
 
-$stmt = $pdo->prepare(
-    "SELECT id, title, file_url
+/*
+ * Get book information.
+ */
+
+$bookStmt = $pdo->prepare(
+    "SELECT *
      FROM books
      WHERE id = ?"
 );
 
-$stmt->execute([$book_id]);
+$bookStmt->execute([$book_id]);
 
-$book = $stmt->fetch(PDO::FETCH_ASSOC);
+$book = $bookStmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$book) {
     die("Book not found.");
 }
 
-$download_type = 'guest';
-$user_id = null;
-
 /*
- * REGISTERED USER
+ * Registered user download.
  */
 
 if (isset($_SESSION['user_id'])) {
 
-    $download_type = 'registered';
     $user_id = $_SESSION['user_id'];
+
+    /*
+     * Count registered user downloads.
+     */
 
     $countStmt = $pdo->prepare(
         "SELECT COUNT(*)
@@ -45,50 +51,28 @@ if (isset($_SESSION['user_id'])) {
 
     $countStmt->execute([$user_id]);
 
-    $download_count = (int) $countStmt->fetchColumn();
+    $downloadCount = (int) $countStmt->fetchColumn();
 
-    if ($download_count >= 10) {
+    /*
+     * Registered users are limited to 10 downloads.
+     */
 
+    if ($downloadCount >= 10) {
         ?>
 
         <!DOCTYPE html>
         <html lang="en">
-
         <head>
-
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1.0"
-            >
+            <title>Download Limit | Digitalia</title>
 
-            <title>Download Limit - Digitalia</title>
-
-            <link
-                rel="preconnect"
-                href="https://fonts.googleapis.com"
-            >
-
-            <link
-                rel="preconnect"
-                href="https://fonts.googleapis.com"
-                crossorigin
-            >
-
-            <link
-                href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
-                rel="stylesheet"
-            >
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
             <style>
-
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
                 :root {
                     --cream: #f6f1e8;
                     --cream-light: #fcfaf6;
@@ -100,15 +84,20 @@ if (isset($_SESSION['user_id'])) {
                     --white: #ffffff;
                 }
 
+                * {
+                    box-sizing: border-box;
+                }
+
                 body {
+                    margin: 0;
                     min-height: 100vh;
+                    background: var(--cream);
+                    color: var(--charcoal);
+                    font-family: "DM Sans", sans-serif;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 30px;
-                    background: var(--cream-light);
-                    color: var(--charcoal);
-                    font-family: "DM Sans", sans-serif;
+                    padding: 32px 20px;
                 }
 
                 .container {
@@ -118,276 +107,192 @@ if (isset($_SESSION['user_id'])) {
                 }
 
                 .brand {
-                    margin-bottom: 50px;
-                    color: var(--charcoal);
                     font-family: "Cormorant Garamond", serif;
-                    font-size: 34px;
-                    font-weight: 600;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: var(--red);
+                    margin-bottom: 52px;
                 }
 
-                .brand span {
-                    color: var(--red);
+                .card {
+                    background: var(--cream-light);
+                    border: 1px solid var(--border);
+                    padding: 56px 48px;
                 }
 
                 .eyebrow {
-                    margin-bottom: 20px;
                     color: var(--red);
-                    font-size: 10px;
+                    font-size: 12px;
                     font-weight: 700;
-                    letter-spacing: 2.5px;
+                    letter-spacing: 0.14em;
                     text-transform: uppercase;
+                    margin-bottom: 14px;
                 }
 
                 h1 {
-                    margin-bottom: 20px;
+                    margin: 0 0 16px;
                     font-family: "Cormorant Garamond", serif;
-                    font-size: clamp(55px, 8vw, 78px);
-                    font-weight: 600;
-                    line-height: 0.9;
-                }
-
-                .description {
-                    max-width: 470px;
-                    margin: 0 auto 35px;
-                    color: var(--muted);
-                    font-size: 13px;
-                    line-height: 1.8;
-                }
-
-                .usage-card {
-                    margin-bottom: 30px;
-                    padding: 28px;
-                    border: 1px solid var(--border);
-                    background: var(--white);
-                    text-align: left;
-                }
-
-                .usage-label {
-                    margin-bottom: 10px;
-                    color: var(--muted);
-                    font-size: 10px;
-                    font-weight: 700;
-                    letter-spacing: 1.5px;
-                    text-transform: uppercase;
-                }
-
-                .usage-number {
-                    margin-bottom: 18px;
-                    font-family: "Cormorant Garamond", serif;
-                    font-size: 48px;
+                    font-size: clamp(42px, 7vw, 64px);
+                    line-height: 0.95;
                     font-weight: 600;
                 }
 
-                .usage-number span {
-                    color: #aaa29c;
-                    font-size: 27px;
+                p {
+                    margin: 0 auto;
+                    max-width: 460px;
+                    color: var(--muted);
+                    line-height: 1.7;
+                    font-size: 15px;
                 }
 
-                .progress {
-                    width: 100%;
-                    height: 4px;
-                    background: #e9e3dc;
-                }
-
-                .progress-bar {
-                    width: 100%;
-                    height: 100%;
-                    background: var(--red);
-                }
-
-                .actions {
+                .navigation {
+                    margin-top: 34px;
                     display: flex;
                     justify-content: center;
-                    gap: 10px;
+                    gap: 12px;
+                    flex-wrap: wrap;
                 }
 
                 .button {
-                    min-height: 45px;
-                    padding: 0 22px;
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 11px;
-                    font-weight: 600;
+                    min-height: 46px;
+                    padding: 0 22px;
+                    border: 1px solid var(--red);
+                    background: var(--red);
+                    color: var(--white);
                     text-decoration: none;
+                    font-size: 13px;
+                    font-weight: 600;
+                    transition: 0.2s ease;
                 }
 
-                .primary {
-                    border: 1px solid var(--red);
+                .button:hover {
+                    background: var(--red-dark);
+                    border-color: var(--red-dark);
+                }
+
+                .button.secondary {
+                    background: transparent;
+                    color: var(--red);
+                }
+
+                .button.secondary:hover {
                     background: var(--red);
                     color: var(--white);
                 }
 
-                .primary:hover {
-                    border-color: var(--red-dark);
-                    background: var(--red-dark);
-                }
-
-                .secondary {
-                    border: 1px solid var(--border);
-                    background: var(--cream-light);
-                    color: var(--charcoal);
-                }
-
-                .secondary:hover {
-                    border-color: var(--charcoal);
-                }
-
-                @media (max-width: 500px) {
-
-                    body {
-                        padding: 25px;
+                @media (max-width: 600px) {
+                    .card {
+                        padding: 44px 24px;
                     }
-
-                    .brand {
-                        margin-bottom: 40px;
-                    }
-
-                    .actions {
-                        flex-direction: column;
-                    }
-
-                    .button {
-                        width: 100%;
-                    }
-
                 }
-
             </style>
-
         </head>
 
         <body>
 
-            <main class="container">
+        <main class="container">
 
-                <div class="brand">
-                    Digit<span>alia</span>
-                </div>
+            <div class="brand">Digitalia</div>
 
-                <div class="eyebrow">
-                    Download Limit
-                </div>
+            <section class="card">
 
-                <h1>
-                    You've reached<br>
-                    your limit.
-                </h1>
+                <div class="eyebrow">Download limit reached</div>
 
-                <p class="description">
-                    Your account has reached the maximum of
-                    10 downloads. You can continue exploring
-                    the Digitalia collection while your current
-                    download allowance is fully used.
+                <h1>Your limit has been reached.</h1>
+
+                <p>
+                    Registered accounts can download up to 10 books.
+                    You have already reached your current download limit.
                 </p>
 
-                <div class="usage-card">
+                <div class="navigation">
 
-                    <div class="usage-label">
-                        Account Downloads
-                    </div>
-
-                    <div class="usage-number">
-                        <?php echo $download_count; ?>
-                        <span>/ 10</span>
-                    </div>
-
-                    <div class="progress">
-
-                        <div class="progress-bar"></div>
-
-                    </div>
-
-                </div>
-
-                <div class="actions">
-
-                    <a
-                        href="books.php"
-                        class="button primary"
-                    >
+                    <a href="books.php" class="button">
                         Browse Books
                     </a>
 
-                    <a
-                        href="dashboard.php"
-                        class="button secondary"
-                    >
+                    <a href="dashboard.php" class="button secondary">
                         Back to Dashboard
                     </a>
 
                 </div>
 
-            </main>
+            </section>
+
+        </main>
 
         </body>
-
         </html>
 
         <?php
-
         exit;
     }
 
-}
+    /*
+     * Record registered user download.
+     */
 
-/*
- * GUEST USER
- */
+    $insertStmt = $pdo->prepare(
+        "INSERT INTO downloads
+            (user_id, guest_session_id, book_id, download_type)
+         VALUES
+            (?, NULL, ?, 'registered')"
+    );
 
-else {
+    $insertStmt->execute([
+        $user_id,
+        $book_id
+    ]);
+
+    $downloadCount++;
+
+    $downloadType = "Registered User";
+    $remaining = 10 - $downloadCount;
+
+    $backToDashboard = true;
+
+} else {
+
+    /*
+     * Guest download.
+     */
 
     if (!isset($_SESSION['guest'])) {
         $_SESSION['guest'] = true;
-    }
-
-    if (!isset($_SESSION['guest_downloads'])) {
         $_SESSION['guest_downloads'] = 0;
     }
 
-    if ($_SESSION['guest_downloads'] >= 5) {
+    /*
+     * Count guest downloads.
+     */
 
+    $guestDownloadCount = (int) $_SESSION['guest_downloads'];
+
+    /*
+     * Guests are limited to 5 downloads.
+     */
+
+    if ($guestDownloadCount >= 5) {
         ?>
 
         <!DOCTYPE html>
         <html lang="en">
-
         <head>
-
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1.0"
-            >
+            <title>Guest Download Limit | Digitalia</title>
 
-            <title>Guest Limit - Digitalia</title>
-
-            <link
-                rel="preconnect"
-                href="https://fonts.googleapis.com"
-            >
-
-            <link
-                rel="preconnect"
-                href="https://fonts.googleapis.com"
-                crossorigin
-            >
-
-            <link
-                href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
-                rel="stylesheet"
-            >
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
             <style>
-
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
                 :root {
+                    --cream: #f6f1e8;
                     --cream-light: #fcfaf6;
                     --red: #9b3d4a;
                     --red-dark: #6f2733;
@@ -397,15 +302,20 @@ else {
                     --white: #ffffff;
                 }
 
+                * {
+                    box-sizing: border-box;
+                }
+
                 body {
+                    margin: 0;
                     min-height: 100vh;
+                    background: var(--cream);
+                    color: var(--charcoal);
+                    font-family: "DM Sans", sans-serif;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 30px;
-                    background: var(--cream-light);
-                    color: var(--charcoal);
-                    font-family: "DM Sans", sans-serif;
+                    padding: 32px 20px;
                 }
 
                 .container {
@@ -415,295 +325,183 @@ else {
                 }
 
                 .brand {
-                    margin-bottom: 50px;
-                    color: var(--charcoal);
                     font-family: "Cormorant Garamond", serif;
-                    font-size: 34px;
-                    font-weight: 600;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: var(--red);
+                    margin-bottom: 52px;
                 }
 
-                .brand span {
-                    color: var(--red);
+                .card {
+                    background: var(--cream-light);
+                    border: 1px solid var(--border);
+                    padding: 56px 48px;
                 }
 
                 .eyebrow {
-                    margin-bottom: 20px;
                     color: var(--red);
-                    font-size: 10px;
+                    font-size: 12px;
                     font-weight: 700;
-                    letter-spacing: 2.5px;
+                    letter-spacing: 0.14em;
                     text-transform: uppercase;
+                    margin-bottom: 14px;
                 }
 
                 h1 {
-                    margin-bottom: 20px;
+                    margin: 0 0 16px;
                     font-family: "Cormorant Garamond", serif;
-                    font-size: clamp(55px, 8vw, 78px);
-                    font-weight: 600;
-                    line-height: 0.9;
-                }
-
-                .description {
-                    max-width: 470px;
-                    margin: 0 auto 35px;
-                    color: var(--muted);
-                    font-size: 13px;
-                    line-height: 1.8;
-                }
-
-                .usage-card {
-                    margin-bottom: 30px;
-                    padding: 28px;
-                    border: 1px solid var(--border);
-                    background: var(--white);
-                    text-align: left;
-                }
-
-                .usage-label {
-                    margin-bottom: 10px;
-                    color: var(--muted);
-                    font-size: 10px;
-                    font-weight: 700;
-                    letter-spacing: 1.5px;
-                    text-transform: uppercase;
-                }
-
-                .usage-number {
-                    margin-bottom: 18px;
-                    font-family: "Cormorant Garamond", serif;
-                    font-size: 48px;
+                    font-size: clamp(42px, 7vw, 64px);
+                    line-height: 0.95;
                     font-weight: 600;
                 }
 
-                .usage-number span {
-                    color: #aaa29c;
-                    font-size: 27px;
-                }
-
-                .progress {
-                    width: 100%;
-                    height: 4px;
-                    background: #e9e3dc;
-                }
-
-                .progress-bar {
-                    width: 100%;
-                    height: 100%;
-                    background: var(--red);
-                }
-
-                .account-note {
-                    margin-bottom: 30px;
+                p {
+                    margin: 0 auto;
+                    max-width: 460px;
                     color: var(--muted);
-                    font-size: 12px;
                     line-height: 1.7;
+                    font-size: 15px;
                 }
 
-                .actions {
+                .navigation {
+                    margin-top: 34px;
                     display: flex;
                     justify-content: center;
-                    gap: 10px;
+                    gap: 12px;
+                    flex-wrap: wrap;
                 }
 
                 .button {
-                    min-height: 45px;
-                    padding: 0 22px;
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 11px;
-                    font-weight: 600;
+                    min-height: 46px;
+                    padding: 0 22px;
+                    border: 1px solid var(--red);
+                    background: var(--red);
+                    color: var(--white);
                     text-decoration: none;
+                    font-size: 13px;
+                    font-weight: 600;
+                    transition: 0.2s ease;
                 }
 
-                .primary {
-                    border: 1px solid var(--red);
+                .button:hover {
+                    background: var(--red-dark);
+                    border-color: var(--red-dark);
+                }
+
+                .button.secondary {
+                    background: transparent;
+                    color: var(--red);
+                }
+
+                .button.secondary:hover {
                     background: var(--red);
                     color: var(--white);
                 }
 
-                .primary:hover {
-                    border-color: var(--red-dark);
-                    background: var(--red-dark);
-                }
-
-                .secondary {
-                    border: 1px solid var(--border);
-                    background: var(--cream-light);
-                    color: var(--charcoal);
-                }
-
-                .secondary:hover {
-                    border-color: var(--charcoal);
-                }
-
-                @media (max-width: 500px) {
-
-                    body {
-                        padding: 25px;
+                @media (max-width: 600px) {
+                    .card {
+                        padding: 44px 24px;
                     }
-
-                    .brand {
-                        margin-bottom: 40px;
-                    }
-
-                    .actions {
-                        flex-direction: column;
-                    }
-
-                    .button {
-                        width: 100%;
-                    }
-
                 }
-
             </style>
-
         </head>
 
         <body>
 
-            <main class="container">
+        <main class="container">
 
-                <div class="brand">
-                    Digit<span>alia</span>
-                </div>
+            <div class="brand">Digitalia</div>
 
-                <div class="eyebrow">
-                    Guest Limit
-                </div>
+            <section class="card">
 
-                <h1>
-                    You've reached<br>
-                    your limit.
-                </h1>
+                <div class="eyebrow">Guest limit reached</div>
 
-                <p class="description">
-                    You've used all five downloads available
-                    in Guest Mode for this session. Create a
-                    Digitalia account to continue with a larger
-                    download allowance.
+                <h1>You've reached your limit.</h1>
+
+                <p>
+                    Guest users can download up to 5 books per session.
+                    Create an account to continue exploring Digitalia
+                    with a higher download limit and access to My Library.
                 </p>
 
-                <div class="usage-card">
+                <div class="navigation">
 
-                    <div class="usage-label">
-                        Guest Downloads
-                    </div>
-
-                    <div class="usage-number">
-                        <?php echo $_SESSION['guest_downloads']; ?>
-                        <span>/ 5</span>
-                    </div>
-
-                    <div class="progress">
-
-                        <div class="progress-bar"></div>
-
-                    </div>
-
-                </div>
-
-                <p class="account-note">
-                    Registered users can download up to 10 books
-                    and save books to their personal library.
-                </p>
-
-                <div class="actions">
-
-                    <a
-                        href="register.php"
-                        class="button primary"
-                    >
-                        Create Account
+                    <a href="register.php" class="button">
+                        Create an Account
                     </a>
 
-                    <a
-                        href="books.php"
-                        class="button secondary"
-                    >
+                    <a href="books.php" class="button secondary">
                         Browse Books
                     </a>
 
                 </div>
 
-            </main>
+            </section>
+
+        </main>
 
         </body>
-
         </html>
 
         <?php
-
         exit;
     }
 
-}
+    /*
+     * Make sure the guest has a session ID.
+     */
 
-/*
- * RECORD THE DOWNLOAD
- */
+    $guest_session_id = session_id();
 
-$insert = $pdo->prepare(
-    "INSERT INTO downloads (user_id, book_id, download_type)
-     VALUES (?, ?, ?)"
-);
+    /*
+     * Record guest download together with the session ID.
+     */
 
-$insert->execute([
-    $user_id,
-    $book_id,
-    $download_type
-]);
+    $insertStmt = $pdo->prepare(
+        "INSERT INTO downloads
+            (user_id, guest_session_id, book_id, download_type)
+         VALUES
+            (NULL, ?, ?, 'guest')"
+    );
 
-/*
- * INCREASE GUEST SESSION DOWNLOAD COUNTER
- */
+    $insertStmt->execute([
+        $guest_session_id,
+        $book_id
+    ]);
 
-if ($download_type === 'guest') {
+    /*
+     * Increase the guest's session download count.
+     */
 
     $_SESSION['guest_downloads']++;
 
+    $downloadCount = (int) $_SESSION['guest_downloads'];
+
+    $downloadType = "Guest";
+    $remaining = 5 - $downloadCount;
+
+    $backToDashboard = false;
 }
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Download Recorded | Digitalia</title>
 
-    <title>Download Recorded - Digitalia</title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
         :root {
             --cream: #f6f1e8;
@@ -716,15 +514,20 @@ if ($download_type === 'guest') {
             --white: #ffffff;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            margin: 0;
             min-height: 100vh;
+            background: var(--cream);
+            color: var(--charcoal);
+            font-family: "DM Sans", sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px;
-            background: var(--cream-light);
-            color: var(--charcoal);
-            font-family: "DM Sans", sans-serif;
+            padding: 32px 20px;
         }
 
         .container {
@@ -733,219 +536,155 @@ if ($download_type === 'guest') {
         }
 
         .brand {
-            margin-bottom: 55px;
             text-align: center;
-            color: var(--charcoal);
             font-family: "Cormorant Garamond", serif;
-            font-size: 34px;
-            font-weight: 600;
-        }
-
-        .brand span {
+            font-size: 30px;
+            font-weight: 700;
             color: var(--red);
+            margin-bottom: 52px;
         }
 
         .card {
-            padding: 45px;
+            background: var(--cream-light);
             border: 1px solid var(--border);
-            background: var(--white);
+            padding: 56px 48px;
         }
 
         .eyebrow {
-            margin-bottom: 18px;
             color: var(--red);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
-            letter-spacing: 2.5px;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
+            margin-bottom: 14px;
         }
 
         h1 {
-            margin-bottom: 18px;
+            margin: 0 0 20px;
             font-family: "Cormorant Garamond", serif;
-            font-size: clamp(52px, 8vw, 75px);
+            font-size: clamp(42px, 7vw, 68px);
+            line-height: 0.95;
             font-weight: 600;
-            line-height: 0.9;
-        }
-
-        .intro {
-            margin-bottom: 35px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.8;
         }
 
         .book-title {
-            color: var(--charcoal);
-            font-weight: 700;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 27px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .author {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 28px;
         }
 
         .details {
-            margin-bottom: 30px;
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            display: grid;
+            gap: 13px;
+            margin-bottom: 28px;
         }
 
-        .detail-row {
-            min-height: 55px;
+        .detail {
             display: flex;
-            align-items: center;
             justify-content: space-between;
             gap: 20px;
+            font-size: 13px;
         }
 
-        .detail-label {
+        .label {
             color: var(--muted);
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
         }
 
-        .detail-value {
-            color: var(--charcoal);
-            font-size: 12px;
+        .value {
             font-weight: 600;
             text-align: right;
         }
 
-        .usage {
-            margin-bottom: 30px;
-            padding: 22px;
-            background: var(--cream);
-        }
-
-        .usage-label {
-            margin-bottom: 8px;
+        .message {
             color: var(--muted);
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .usage-number {
-            margin-bottom: 15px;
-            font-family: "Cormorant Garamond", serif;
-            font-size: 39px;
-            font-weight: 600;
-        }
-
-        .usage-number span {
-            color: #aaa29c;
-            font-size: 24px;
-        }
-
-        .progress {
-            width: 100%;
-            height: 4px;
-            background: #e4ddd5;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--red);
-        }
-
-        .file-note {
-            margin-bottom: 30px;
-            padding: 18px 20px;
-            border-left: 2px solid var(--red);
-            background: var(--cream-light);
-            color: var(--muted);
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.7;
+            margin-bottom: 28px;
         }
 
-        .file-button {
-            width: 100%;
-            min-height: 48px;
-            margin-bottom: 10px;
-            display: flex;
+        .file-link {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--red);
+            min-height: 46px;
+            padding: 0 22px;
             background: var(--red);
+            border: 1px solid var(--red);
             color: var(--white);
-            font-size: 11px;
-            font-weight: 600;
             text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            transition: 0.2s ease;
         }
 
-        .file-button:hover {
-            border-color: var(--red-dark);
+        .file-link:hover {
             background: var(--red-dark);
+            border-color: var(--red-dark);
         }
 
         .navigation {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
         }
 
-        .back-button,
-        .dashboard-button {
-            width: 100%;
-            min-height: 48px;
-            display: flex;
+        .button {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .back-button {
-            border: 1px solid var(--border);
-            background: var(--cream-light);
-            color: var(--charcoal);
-        }
-
-        .back-button:hover {
-            border-color: var(--charcoal);
-        }
-
-        .dashboard-button {
+            min-height: 46px;
+            padding: 0 22px;
             border: 1px solid var(--red);
+            background: transparent;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .button:hover {
             background: var(--red);
             color: var(--white);
         }
 
-        .dashboard-button:hover {
-            border-color: var(--red-dark);
-            background: var(--red-dark);
+        .button.primary {
+            background: var(--red);
+            color: var(--white);
         }
 
-        @media (max-width: 550px) {
+        .button.primary:hover {
+            background: var(--red-dark);
+            border-color: var(--red-dark);
+        }
 
-            body {
-                padding: 20px;
-            }
-
-            .brand {
-                margin-bottom: 35px;
-            }
+        @media (max-width: 600px) {
 
             .card {
-                padding: 30px 24px;
+                padding: 44px 24px;
             }
 
-            .detail-row {
-                align-items: flex-start;
+            .detail {
                 flex-direction: column;
-                justify-content: center;
-                gap: 5px;
-                padding: 13px 0;
+                gap: 4px;
             }
 
-            .detail-value {
+            .value {
                 text-align: left;
             }
-
-            .navigation {
-                grid-template-columns: 1fr;
-            }
-
         }
 
     </style>
@@ -954,169 +693,99 @@ if ($download_type === 'guest') {
 
 <body>
 
-    <main class="container">
+<main class="container">
 
-        <div class="brand">
-            Digit<span>alia</span>
+    <div class="brand">
+        Digitalia
+    </div>
+
+    <section class="card">
+
+        <div class="eyebrow">
+            Download recorded
         </div>
 
-        <div class="card">
+        <h1>
+            You're all set.
+        </h1>
 
-            <div class="eyebrow">
-                Download Recorded
-            </div>
+        <div class="book-title">
+            <?= htmlspecialchars($book['title']) ?>
+        </div>
 
-            <h1>
-                You're all set.
-            </h1>
+        <div class="author">
+            <?= htmlspecialchars($book['author']) ?>
+        </div>
 
-            <p class="intro">
-                Your download request for
-                <span class="book-title">
-                    <?php echo htmlspecialchars($book['title']); ?>
+        <div class="details">
+
+            <div class="detail">
+                <span class="label">Download type</span>
+                <span class="value">
+                    <?= htmlspecialchars($downloadType) ?>
                 </span>
-                has been successfully recorded.
-            </p>
-
-            <div class="details">
-
-                <div class="detail-row">
-
-                    <span class="detail-label">
-                        Download Type
-                    </span>
-
-                    <span class="detail-value">
-                        <?php
-                        echo $download_type === 'guest'
-                            ? 'Guest'
-                            : 'Registered User';
-                        ?>
-                    </span>
-
-                </div>
-
             </div>
 
-            <?php if ($download_type === 'guest'): ?>
+            <div class="detail">
+                <span class="label">Downloads used</span>
+                <span class="value">
+                    <?= $downloadCount ?> / <?= $downloadType === 'Guest' ? 5 : 10 ?>
+                </span>
+            </div>
 
-                <div class="usage">
-
-                    <div class="usage-label">
-                        Guest Downloads
-                    </div>
-
-                    <div class="usage-number">
-
-                        <?php echo $_SESSION['guest_downloads']; ?>
-
-                        <span>/ 5</span>
-
-                    </div>
-
-                    <div class="progress">
-
-                        <div
-                            class="progress-bar"
-                            style="width: <?php echo min(100, ($_SESSION['guest_downloads'] / 5) * 100); ?>%;"
-                        ></div>
-
-                    </div>
-
-                </div>
-
-            <?php else: ?>
-
-                <?php
-
-                $updatedCountStmt = $pdo->prepare(
-                    "SELECT COUNT(*)
-                     FROM downloads
-                     WHERE user_id = ?
-                     AND download_type = 'registered'"
-                );
-
-                $updatedCountStmt->execute([$user_id]);
-
-                $updated_download_count = (int) $updatedCountStmt->fetchColumn();
-
-                ?>
-
-                <div class="usage">
-
-                    <div class="usage-label">
-                        Account Downloads
-                    </div>
-
-                    <div class="usage-number">
-
-                        <?php echo $updated_download_count; ?>
-
-                        <span>/ 10</span>
-
-                    </div>
-
-                    <div class="progress">
-
-                        <div
-                            class="progress-bar"
-                            style="width: <?php echo min(100, ($updated_download_count / 10) * 100); ?>%;"
-                        ></div>
-
-                    </div>
-
-                </div>
-
-            <?php endif; ?>
-
-
-            <?php if (!empty($book['file_url']) && $book['file_url'] !== '#'): ?>
-
-                <a
-                    href="<?php echo htmlspecialchars($book['file_url']); ?>"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="file-button"
-                >
-                    Access Book File
-                </a>
-
-            <?php else: ?>
-
-                <div class="file-note">
-                    The book file will be available once a legally
-                    authorized download link is added.
-                </div>
-
-            <?php endif; ?>
-
-
-            <div class="navigation">
-
-                <a
-                    href="books.php"
-                    class="back-button"
-                >
-                    Back to Book Catalog
-                </a>
-
-                <?php if ($download_type === 'registered'): ?>
-
-                    <a
-                        href="dashboard.php"
-                        class="dashboard-button"
-                    >
-                        Back to Dashboard
-                    </a>
-
-                <?php endif; ?>
-
+            <div class="detail">
+                <span class="label">Remaining</span>
+                <span class="value">
+                    <?= $remaining ?>
+                </span>
             </div>
 
         </div>
 
-    </main>
+        <?php if (!empty($book['file_url']) && $book['file_url'] !== '#'): ?>
+
+            <div class="message">
+                Your download has been recorded. You may now access the
+                legally authorized book file using the button below.
+            </div>
+
+            <a
+                href="<?= htmlspecialchars($book['file_url']) ?>"
+                class="file-link"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Access Book File
+            </a>
+
+        <?php else: ?>
+
+            <div class="message">
+                Your download has been recorded. A legally authorized
+                book file is not currently available for this title.
+            </div>
+
+        <?php endif; ?>
+
+        <div class="navigation">
+
+            <a href="books.php" class="button primary">
+                Back to Book Catalog
+            </a>
+
+            <?php if ($backToDashboard): ?>
+
+                <a href="dashboard.php" class="button">
+                    Back to Dashboard
+                </a>
+
+            <?php endif; ?>
+
+        </div>
+
+    </section>
+
+</main>
 
 </body>
-
 </html>
