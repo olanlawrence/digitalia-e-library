@@ -13,10 +13,16 @@ if (!isset($_SESSION['guest'])) {
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Guest Mode - Digitalia</title>
+
 </head>
 
 <body>
@@ -33,24 +39,49 @@ if (!isset($_SESSION['guest'])) {
 
     <p>
         Guest downloads used:
-        <?php echo $_SESSION['guest_downloads']; ?> / 5
+        <strong>
+            <?php echo $_SESSION['guest_downloads']; ?> / 5
+        </strong>
     </p>
 
     <hr>
 
-    <h3>Digital Library</h3>
+    <h2>Digital Library</h2>
 
     <p>
-        Book catalog will appear here.
+        Browse the available books in the Digitalia library.
     </p>
 
-    <br>
+    <p>
+        <a href="books.php">
+            Browse Books
+        </a>
+    </p>
 
-    <a href="login.php">Log In</a>
+    <hr>
 
-    |
+    <p>
+        Want to save books to your personal library?
+    </p>
 
-    <a href="register.php">Create an Account</a>
+    <p>
+        <a href="register.php">
+            Create an Account
+        </a>
+    </p>
+
+    <p>
+        Already have an account?
+        <a href="login.php">
+            Log In
+        </a>
+    </p>
+
+    <p>
+        <a href="index.php">
+            Back to Home
+        </a>
+    </p>
 
 </body>
 
