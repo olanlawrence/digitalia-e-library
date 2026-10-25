@@ -123,7 +123,6 @@ if (isset($_SESSION['user_id'])) {
                     font-family: "Cormorant Garamond", serif;
                     font-size: 34px;
                     font-weight: 600;
-                    text-decoration: none;
                 }
 
                 .brand span {
@@ -314,7 +313,7 @@ if (isset($_SESSION['user_id'])) {
                         href="dashboard.php"
                         class="button secondary"
                     >
-                        Dashboard
+                        Back to Dashboard
                     </a>
 
                 </div>
@@ -389,7 +388,6 @@ else {
                 }
 
                 :root {
-                    --cream: #f6f1e8;
                     --cream-light: #fcfaf6;
                     --red: #9b3d4a;
                     --red-dark: #6f2733;
@@ -643,7 +641,7 @@ else {
 }
 
 /*
- * Record the download.
+ * RECORD THE DOWNLOAD
  */
 
 $insert = $pdo->prepare(
@@ -658,7 +656,7 @@ $insert->execute([
 ]);
 
 /*
- * Increase guest session download counter.
+ * INCREASE GUEST SESSION DOWNLOAD COUNTER
  */
 
 if ($download_type === 'guest') {
@@ -794,11 +792,6 @@ if ($download_type === 'guest') {
             align-items: center;
             justify-content: space-between;
             gap: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
         }
 
         .detail-label {
@@ -884,22 +877,43 @@ if ($download_type === 'guest') {
             background: var(--red-dark);
         }
 
-        .back-button {
+        .navigation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .back-button,
+        .dashboard-button {
             width: 100%;
             min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--border);
-            background: var(--cream-light);
-            color: var(--charcoal);
             font-size: 11px;
             font-weight: 600;
             text-decoration: none;
         }
 
+        .back-button {
+            border: 1px solid var(--border);
+            background: var(--cream-light);
+            color: var(--charcoal);
+        }
+
         .back-button:hover {
             border-color: var(--charcoal);
+        }
+
+        .dashboard-button {
+            border: 1px solid var(--red);
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .dashboard-button:hover {
+            border-color: var(--red-dark);
+            background: var(--red-dark);
         }
 
         @media (max-width: 550px) {
@@ -926,6 +940,10 @@ if ($download_type === 'guest') {
 
             .detail-value {
                 text-align: left;
+            }
+
+            .navigation {
+                grid-template-columns: 1fr;
             }
 
         }
@@ -960,7 +978,6 @@ if ($download_type === 'guest') {
                 has been successfully recorded.
             </p>
 
-
             <div class="details">
 
                 <div class="detail-row">
@@ -980,7 +997,6 @@ if ($download_type === 'guest') {
                 </div>
 
             </div>
-
 
             <?php if ($download_type === 'guest'): ?>
 
@@ -1075,12 +1091,27 @@ if ($download_type === 'guest') {
             <?php endif; ?>
 
 
-            <a
-                href="books.php"
-                class="back-button"
-            >
-                Back to Book Catalog
-            </a>
+            <div class="navigation">
+
+                <a
+                    href="books.php"
+                    class="back-button"
+                >
+                    Back to Book Catalog
+                </a>
+
+                <?php if ($download_type === 'registered'): ?>
+
+                    <a
+                        href="dashboard.php"
+                        class="dashboard-button"
+                    >
+                        Back to Dashboard
+                    </a>
+
+                <?php endif; ?>
+
+            </div>
 
         </div>
 
