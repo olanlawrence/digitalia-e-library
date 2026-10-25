@@ -279,11 +279,23 @@ if ($isLoggedIn) {
 
     <?php endif; ?>
 
-    <p>
-        <a href="index.php">
-            Back to Home
-        </a>
-    </p>
+    <?php if ($isLoggedIn): ?>
+
+        <p>
+            <a href="dashboard.php">
+                Back to Dashboard
+            </a>
+        </p>
+
+    <?php else: ?>
+
+        <p>
+            <a href="index.php">
+                Back to Home
+            </a>
+        </p>
+
+    <?php endif; ?>
 
 </body>
 
