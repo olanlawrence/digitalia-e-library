@@ -228,7 +228,7 @@ $role = $_SESSION['role'];
 
         .cards {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
         }
 
@@ -271,7 +271,7 @@ $role = $_SESSION['role'];
             margin-bottom: 10px;
             color: var(--charcoal);
             font-family: "Cormorant Garamond", serif;
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 600;
         }
 
@@ -398,6 +398,14 @@ $role = $_SESSION['role'];
         }
 
         /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
 
         @media (max-width: 850px) {
 
@@ -638,6 +646,35 @@ $role = $_SESSION['role'];
                     <p>
                         View the books you have saved
                         and keep your personal collection organized.
+                    </p>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <a
+                href="my-downloads.php"
+                class="card"
+            >
+
+                <div class="card-label">
+                    History
+                </div>
+
+                <div class="card-content">
+
+                    <h3>
+                        My Downloads
+                    </h3>
+
+                    <p>
+                        View the books you have downloaded
+                        and access your download history anytime.
                     </p>
 
                 </div>
