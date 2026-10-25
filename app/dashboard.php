@@ -69,6 +69,15 @@ $role = $_SESSION['role'];
             font-family: "DM Sans", sans-serif;
         }
 
+        /*
+         * GLOBAL LINK RESET
+         * Prevents browser default purple/visited-link colors.
+         */
+
+        a {
+            color: inherit;
+        }
+
         /* NAVIGATION */
 
         .navbar {
@@ -90,6 +99,10 @@ $role = $_SESSION['role'];
             letter-spacing: -0.5px;
         }
 
+        .brand:visited {
+            color: var(--charcoal);
+        }
+
         .brand span {
             color: var(--red);
         }
@@ -108,6 +121,10 @@ $role = $_SESSION['role'];
             transition: color 0.2s ease;
         }
 
+        .nav-link:visited {
+            color: var(--muted);
+        }
+
         .nav-link:hover {
             color: var(--red);
         }
@@ -123,6 +140,10 @@ $role = $_SESSION['role'];
                 background 0.2s ease,
                 border-color 0.2s ease,
                 color 0.2s ease;
+        }
+
+        .logout-link:visited {
+            color: var(--charcoal);
         }
 
         .logout-link:hover {
@@ -222,6 +243,7 @@ $role = $_SESSION['role'];
             justify-content: space-between;
             border: 1px solid var(--border);
             background: var(--white);
+            color: var(--charcoal);
             text-decoration: none;
             transition:
                 transform 0.25s ease,
@@ -229,7 +251,12 @@ $role = $_SESSION['role'];
                 box-shadow 0.25s ease;
         }
 
+        .card:visited {
+            color: var(--charcoal);
+        }
+
         .card:hover {
+            color: var(--charcoal);
             transform: translateY(-3px);
             border-color: rgba(155, 61, 74, 0.35);
             box-shadow: 0 15px 35px rgba(50, 40, 35, 0.07);
@@ -245,6 +272,7 @@ $role = $_SESSION['role'];
 
         .card-content h3 {
             margin-bottom: 10px;
+            color: var(--charcoal);
             font-family: "Cormorant Garamond", serif;
             font-size: 36px;
             font-weight: 600;
@@ -333,6 +361,7 @@ $role = $_SESSION['role'];
 
         .ai-box h3 {
             margin-bottom: 8px;
+            color: var(--charcoal);
             font-family: "Cormorant Garamond", serif;
             font-size: 34px;
             font-weight: 600;
