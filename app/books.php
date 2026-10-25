@@ -650,7 +650,7 @@ if ($isLoggedIn) {
 <nav class="navbar">
 
     <a
-        href="<?php echo $isLoggedIn ? 'dashboard.php' : 'index.php'; ?>"
+        href="<?php echo $isLoggedIn ? 'dashboard.php' : 'guest.php'; ?>"
         class="brand"
     >
         Digit<span>alia</span>
@@ -682,6 +682,13 @@ if ($isLoggedIn) {
             </a>
 
         <?php else: ?>
+
+            <a
+                href="guest.php"
+                class="nav-link"
+            >
+                Guest Home
+            </a>
 
             <a
                 href="login.php"
