@@ -139,8 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .visual-content {
-            position: relative;
-            z-index: 2;
             width: 100%;
             max-width: 440px;
         }
@@ -183,41 +181,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--muted);
             font-size: 15px;
             line-height: 1.8;
-        }
-
-        .book-shape {
-            position: absolute;
-            width: 280px;
-            height: 380px;
-            right: -110px;
-            bottom: 8%;
-            background: var(--red);
-            transform: rotate(-8deg);
-            opacity: 0.95;
-        }
-
-        .book-shape::before {
-            content: "";
-            position: absolute;
-            width: 245px;
-            height: 345px;
-            top: 18px;
-            left: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-        }
-
-        .book-shape::after {
-            content: "DIGITALIA";
-            position: absolute;
-            top: 50%;
-            left: 45px;
-            color: rgba(255, 255, 255, 0.75);
-            font-family: "Cormorant Garamond", serif;
-            font-size: 25px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            transform: rotate(-90deg);
-            transform-origin: left center;
         }
 
         .visual-footer {
@@ -419,17 +382,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 max-width: 450px;
             }
 
-            .book-shape {
-                width: 220px;
-                height: 300px;
-                right: -100px;
-            }
-
-            .book-shape::before {
-                width: 190px;
-                height: 265px;
-            }
-
             .visual-footer {
                 display: none;
             }
@@ -458,17 +410,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .visual-content p {
                 font-size: 13px;
-            }
-
-            .book-shape {
-                width: 180px;
-                height: 250px;
-                right: -100px;
-            }
-
-            .book-shape::before {
-                width: 150px;
-                height: 215px;
             }
 
             .form-panel {
@@ -517,8 +458,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
 
         </div>
-
-        <div class="book-shape"></div>
 
         <div class="visual-footer">
             Your personal digital library
