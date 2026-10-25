@@ -271,7 +271,7 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
 
         .actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
         }
 
@@ -308,7 +308,7 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
             margin-bottom: 8px;
             color: var(--charcoal);
             font-family: "Cormorant Garamond", serif;
-            font-size: 34px;
+            font-size: 32px;
             font-weight: 600;
         }
 
@@ -409,6 +409,14 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
         }
 
         /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+
+            .actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
 
         @media (max-width: 900px) {
 
@@ -651,6 +659,36 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
                         Explore available titles, search by
                         author or title, and filter the collection
                         by category.
+                    </p>
+
+                </div>
+
+                <div class="action-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <a
+                href="guest-download.php"
+                class="action-card"
+            >
+
+                <div class="action-label">
+                    Your Activity
+                </div>
+
+                <div class="action-content">
+
+                    <h3>
+                        Your Downloads
+                    </h3>
+
+                    <p>
+                        View the books you have downloaded during
+                        your current guest session and keep track
+                        of your remaining downloads.
                     </p>
 
                 </div>
