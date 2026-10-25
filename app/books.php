@@ -14,6 +14,7 @@ $sql = "
 $params = [];
 
 if ($search !== '') {
+
     $sql .= "
         AND (
             title LIKE ?
@@ -28,7 +29,9 @@ if ($search !== '') {
 }
 
 if ($category !== '') {
+
     $sql .= " AND category = ?";
+
     $params[] = $category;
 }
 
@@ -55,10 +58,16 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Books - Digitalia</title>
+
 </head>
 
 <body>
@@ -167,24 +176,13 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                     <?php echo htmlspecialchars($book['description']); ?>
                 </p>
 
-                <?php if (!empty($book['file_url']) && $book['file_url'] !== '#'): ?>
-
-                    <p>
-                        <a
-                            href="<?php echo htmlspecialchars($book['file_url']); ?>"
-                            target="_blank"
-                        >
-                            Access Book
-                        </a>
-                    </p>
-
-                <?php else: ?>
-
-                    <p>
-                        Book access link will be available soon.
-                    </p>
-
-                <?php endif; ?>
+                <p>
+                    <a
+                        href="download.php?book_id=<?php echo $book['id']; ?>"
+                    >
+                        Download Book
+                    </a>
+                </p>
 
             </div>
 
