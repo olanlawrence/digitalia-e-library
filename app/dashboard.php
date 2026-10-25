@@ -69,10 +69,7 @@ $role = $_SESSION['role'];
             font-family: "DM Sans", sans-serif;
         }
 
-        /*
-         * GLOBAL LINK RESET
-         * Prevents browser default purple/visited-link colors.
-         */
+        /* GLOBAL LINK RESET */
 
         a {
             color: inherit;
@@ -114,7 +111,7 @@ $role = $_SESSION['role'];
         }
 
         .nav-link {
-            color: var(--muted);
+            color: var(--charcoal);
             font-size: 12px;
             font-weight: 600;
             text-decoration: none;
@@ -122,7 +119,7 @@ $role = $_SESSION['role'];
         }
 
         .nav-link:visited {
-            color: var(--muted);
+            color: var(--charcoal);
         }
 
         .nav-link:hover {
