@@ -1,27 +1,28 @@
 
 <?php
+
 session_start();
 
 require_once __DIR__ . '/config/database.php';
 
-// --------------------------------------------------
-// USER SESSION
-// --------------------------------------------------
+$search = trim($_GET['search'] ?? '');
+$category = trim($_GET['category'] ?? '');
 
 $isLoggedIn = isset($_SESSION['user_id']);
-$user_id = $isLoggedIn ? (int) $_SESSION['user_id'] : null;
+$user_id = $_SESSION['user_id'] ?? null;
 
-$search = trim($_GET['search'] ?? '');
-$selectedCategory = trim($_GET['category'] ?? '');
-
-// --------------------------------------------------
-// IT BOOK PLACEHOLDER COLLECTION
-// 10 categories x 20 books = 200 books
-// --------------------------------------------------
+/*
+ * IT BOOK CATEGORIES
+ *
+ * 10 categories with 20 placeholder books each.
+ * Total: 200 placeholder books.
+ */
 
 $bookTopics = [
+
     'Programming Fundamentals' => [
         'Introduction to Programming',
+        'Programming Logic and Problem Solving',
         'Variables and Data Types',
         'Operators and Expressions',
         'Conditional Statements',
@@ -33,12 +34,11 @@ $bookTopics = [
         'Inheritance and Polymorphism',
         'Encapsulation and Abstraction',
         'Exception Handling',
-        'File Handling',
-        'Algorithms and Problem Solving',
+        'File Handling in Programming',
         'Recursion and Backtracking',
-        'Data Structures',
-        'Debugging Techniques',
-        'Programming Logic',
+        'Data Structures Fundamentals',
+        'Algorithms and Problem Solving',
+        'Debugging and Error Handling',
         'Clean Code Principles',
         'Practical Programming Projects'
     ],
@@ -60,7 +60,7 @@ $bookTopics = [
         'Web Application Security',
         'Web Performance Optimization',
         'Browser Technologies',
-        'Full-Stack Development',
+        'Full-Stack Web Development',
         'Website Deployment',
         'Web Accessibility',
         'Practical Web Development Projects'
@@ -70,7 +70,7 @@ $bookTopics = [
         'Introduction to Mobile Development',
         'Android Development Fundamentals',
         'Kotlin Programming',
-        'Java for Android',
+        'Java for Android Development',
         'Mobile User Interface Design',
         'Jetpack Compose Fundamentals',
         'Mobile App Navigation',
@@ -78,7 +78,7 @@ $bookTopics = [
         'Mobile Database Integration',
         'Mobile API Integration',
         'Mobile App Authentication',
-        'Mobile App Security',
+        'Mobile Application Security',
         'Mobile App Testing',
         'Mobile Notifications',
         'Mobile App Performance',
@@ -160,7 +160,7 @@ $bookTopics = [
 
     'Artificial Intelligence' => [
         'Introduction to Artificial Intelligence',
-        'AI Fundamentals',
+        'Artificial Intelligence Fundamentals',
         'Machine Learning Concepts',
         'Supervised Learning',
         'Unsupervised Learning',
@@ -213,7 +213,7 @@ $bookTopics = [
         'Software Architecture',
         'Software Design Patterns',
         'Software Testing Fundamentals',
-        'Quality Assurance',
+        'Software Quality Assurance',
         'Version Control with Git',
         'Software Documentation',
         'Project Management for IT',
@@ -249,94 +249,137 @@ $bookTopics = [
         'Server Administration',
         'Practical Cloud Computing Projects'
     ]
+
 ];
 
-// Generate 200 unique placeholder books.
+
+/*
+ * GENERATE THE 200 PLACEHOLDER BOOKS
+ */
 
 $placeholderBooks = [];
+
 $placeholderId = 1;
 
-foreach ($bookTopics as $category => $topics) {
+foreach ($bookTopics as $bookCategory => $topics) {
+
     foreach ($topics as $topic) {
+
         $placeholderBooks[] = [
+
             'id' => 'placeholder-' . $placeholderId,
-            'title' => $category . ': ' . $topic,
-            'author' => 'Digitalia Placeholder Collection',
-            'category' => $category,
-            'description' => 'Placeholder learning resource about ' . strtolower($topic) . '. This entry is part of the Digitalia Information Technology book collection. The actual book file and full content will be added soon.',
+
+            'title' => $topic,
+
+            'author' => 'Digitalia Editorial Team',
+
+            'category' => $bookCategory,
+
+            'description' =>
+                'This placeholder learning resource introduces ' .
+                strtolower($topic) .
+                '. It is part of the Digitalia Information Technology ' .
+                'collection. The complete book content will be available soon.',
+
             'file_url' => null,
+
             'is_placeholder' => true
+
         ];
 
         $placeholderId++;
+
     }
+
 }
 
-// --------------------------------------------------
-// FETCH REAL BOOKS FROM DATABASE
-// --------------------------------------------------
 
-$databaseBooks = [];
-$favorites = [];
+/*
+ * GET DATABASE BOOKS
+ *
+ * Only books belonging to the IT categories above
+ * will be displayed in the catalog.
+ */
 
-try {
-    $sql = "SELECT id, title, author, category, description, file_url
-            FROM books";
+$sql = "
+    SELECT id, title, author, category, description, file_url
+    FROM books
+    WHERE 1=1
+";
 
-    $params = [];
+$params = [];
 
-    if ($search !== '') {
-        $sql .= " WHERE (title LIKE :search OR author LIKE :search OR description LIKE :search)";
-        $params[':search'] = '%' . $search . '%';
-    }
+if ($search !== '') {
 
-    if ($selectedCategory !== '') {
-        $sql .= $search !== '' ? " AND category = :category" : " WHERE category = :category";
-        $params[':category'] = $selectedCategory;
-    }
+    $sql .= "
+        AND (
+            title LIKE ?
+            OR author LIKE ?
+            OR description LIKE ?
+            OR category LIKE ?
+        )
+    ";
 
-    $sql .= " ORDER BY title ASC";
+    $searchTerm = '%' . $search . '%';
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
 
-    $databaseBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Only show existing database books that belong to IT categories.
-    $itCategories = array_keys($bookTopics);
-
-    $databaseBooks = array_filter($databaseBooks, function ($book) use ($itCategories) {
-        return in_array($book['category'], $itCategories, true);
-    });
-
-    // Load favorites for logged-in users.
-    if ($isLoggedIn) {
-        $favoriteStmt = $pdo->prepare(
-            "SELECT book_id FROM favorites WHERE user_id = :user_id"
-        );
-
-        $favoriteStmt->execute([':user_id' => $user_id]);
-
-        $favorites = $favoriteStmt->fetchAll(PDO::FETCH_COLUMN);
-        $favorites = array_map('intval', $favorites);
-    }
-
-} catch (PDOException $e) {
-    error_log('Digitalia books error: ' . $e->getMessage());
 }
 
-// --------------------------------------------------
-// FILTER PLACEHOLDER BOOKS
-// --------------------------------------------------
+if ($category !== '') {
+
+    $sql .= " AND category = ?";
+
+    $params[] = $category;
+
+}
+
+$sql .= " ORDER BY id ASC";
+
+$stmt = $pdo->prepare($sql);
+
+$stmt->execute($params);
+
+$databaseBooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+/*
+ * KEEP ONLY DATABASE BOOKS THAT BELONG TO IT CATEGORIES.
+ */
+
+$categories = array_keys($bookTopics);
+
+$databaseBooks = array_filter(
+    $databaseBooks,
+    function ($book) use ($categories) {
+
+        return in_array($book['category'], $categories, true);
+
+    }
+);
+
+
+/*
+ * FILTER PLACEHOLDER BOOKS
+ *
+ * Search and category filtering also apply to
+ * the generated placeholder collection.
+ */
 
 $filteredPlaceholders = array_filter(
     $placeholderBooks,
-    function ($book) use ($search, $selectedCategory) {
+    function ($book) use ($search, $category) {
+
         $matchesSearch = true;
+
         $matchesCategory = true;
 
         if ($search !== '') {
-            $searchText = strtolower(
+
+            $searchableText = strtolower(
                 $book['title'] . ' ' .
                 $book['author'] . ' ' .
                 $book['description'] . ' ' .
@@ -344,491 +387,708 @@ $filteredPlaceholders = array_filter(
             );
 
             $matchesSearch = str_contains(
-                $searchText,
+                $searchableText,
                 strtolower($search)
             );
+
         }
 
-        if ($selectedCategory !== '') {
-            $matchesCategory = $book['category'] === $selectedCategory;
+        if ($category !== '') {
+
+            $matchesCategory = $book['category'] === $category;
+
         }
 
         return $matchesSearch && $matchesCategory;
+
     }
 );
 
-// Combine real database books and placeholders.
-$allBooks = [];
+
+/*
+ * COMBINE DATABASE BOOKS AND PLACEHOLDER BOOKS.
+ */
+
+$books = [];
 
 foreach ($databaseBooks as $book) {
+
     $book['is_placeholder'] = false;
-    $allBooks[] = $book;
+
+    $books[] = $book;
+
 }
 
-$allBooks = array_merge($allBooks, array_values($filteredPlaceholders));
+$books = array_merge(
+    $books,
+    array_values($filteredPlaceholders)
+);
 
-// --------------------------------------------------
-// CATEGORY LIST
-// --------------------------------------------------
 
-$categories = array_keys($bookTopics);
+/*
+ * GET THE BOOKS ALREADY SAVED BY THE LOGGED-IN USER.
+ */
 
-// --------------------------------------------------
-// HELPER
-// --------------------------------------------------
+$savedBooks = [];
 
-function escapeOutput($value)
-{
-    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+if ($isLoggedIn) {
+
+    $favoriteStmt = $pdo->prepare(
+        "SELECT book_id
+         FROM favorites
+         WHERE user_id = ?"
+    );
+
+    $favoriteStmt->execute([$user_id]);
+
+    $savedBooks = $favoriteStmt->fetchAll(PDO::FETCH_COLUMN);
+
 }
-
-$totalBooks = count($allBooks);
-$totalPlaceholders = count($placeholderBooks);
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Browse Books | Digitalia IT Library</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Browse IT Books - Digitalia</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f8f5ef;
-            color: #332b29;
+        :root {
+            --cream: #f6f1e8;
+            --cream-light: #fcfaf6;
+            --red: #9b3d4a;
+            --red-dark: #6f2733;
+            --charcoal: #252326;
+            --muted: #716b68;
+            --border: #ded6cc;
+            --white: #ffffff;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
+        body {
+            min-height: 100vh;
+            background: var(--cream-light);
+            color: var(--charcoal);
+            font-family: "DM Sans", sans-serif;
         }
+
+        /* NAVIGATION */
 
         .navbar {
-            background: #4b2029;
-            color: #fff;
-            padding: 18px 7%;
+            height: 78px;
+            padding: 0 6%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(252, 250, 246, 0.97);
         }
 
-        .logo {
-            font-family: 'Cormorant Garamond', serif;
+        .brand {
+            color: var(--charcoal);
+            font-family: "Cormorant Garamond", serif;
             font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: -0.5px;
         }
 
-        .logo span {
-            color: #e8c9a7;
+        .brand span {
+            color: var(--red);
         }
 
-        .nav-links {
+        .nav-right {
             display: flex;
             align-items: center;
-            gap: 25px;
-            font-size: 14px;
+            gap: 28px;
         }
 
-        .nav-links a {
-            color: #f8eeee;
-            transition: .2s;
+        .nav-link {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: #e8c9a7;
+        .nav-link:hover {
+            color: var(--red);
         }
 
-        .hero {
-            padding: 55px 7% 35px;
+        .logout-link {
+            padding: 10px 17px;
+            border: 1px solid var(--border);
+            color: var(--charcoal);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .logout-link:hover {
+            border-color: var(--red);
+            background: var(--red);
+            color: var(--white);
+        }
+
+        /* MAIN */
+
+        .main {
+            width: 88%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 70px 0 90px;
+        }
+
+        /* PAGE HEADER */
+
+        .page-header {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 60px;
+            align-items: end;
+            padding-bottom: 55px;
+            border-bottom: 1px solid var(--border);
         }
 
         .eyebrow {
-            color: #a16b55;
-            font-size: 12px;
+            margin-bottom: 17px;
+            color: var(--red);
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            margin-bottom: 12px;
         }
 
-        .hero h1 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 52px;
-            color: #4b2029;
-            margin-bottom: 10px;
+        .page-header h1 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: clamp(62px, 7vw, 94px);
+            font-weight: 600;
+            line-height: 0.86;
+            letter-spacing: -2px;
         }
 
-        .hero p {
-            max-width: 700px;
-            color: #786d68;
-            line-height: 1.7;
+        .page-header h1 span {
+            color: var(--red);
+        }
+
+        .page-description {
+            max-width: 390px;
+            color: var(--muted);
             font-size: 14px;
+            line-height: 1.8;
         }
 
-        .catalog-info {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        /* SEARCH */
 
-        .info-pill {
-            background: #efe4d8;
-            color: #704535;
-            padding: 9px 15px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .content {
-            padding: 10px 7% 70px;
-        }
-
-        .filter-section {
-            background: #fff;
-            border: 1px solid #eee5dc;
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+        .search-section {
+            padding: 42px 0 55px;
         }
 
         .search-form {
-            display: flex;
-            flex: 1;
-            min-width: 220px;
+            display: grid;
+            grid-template-columns: 1fr 210px auto auto;
             gap: 10px;
         }
 
-        .search-form input {
-            flex: 1;
-            min-width: 0;
-            padding: 13px 15px;
-            border: 1px solid #e5d9d0;
-            border-radius: 8px;
-            font-family: inherit;
+        .input-wrap {
+            position: relative;
+        }
+
+        .search-input,
+        .category-select {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
             outline: none;
+            background: var(--white);
+            color: var(--charcoal);
+            font-family: "DM Sans", sans-serif;
+            font-size: 13px;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .search-form input:focus,
+        .search-input::placeholder {
+            color: #9c9690;
+        }
+
+        .search-input:focus,
         .category-select:focus {
-            border-color: #8b5159;
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(155, 61, 74, 0.08);
         }
 
-        .search-btn,
-        .filter-btn {
-            background: #4b2029;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-family: inherit;
+        .search-button {
+            height: 50px;
+            padding: 0 24px;
+            border: 1px solid var(--red);
+            border-radius: 2px;
+            background: var(--red);
+            color: var(--white);
+            font-family: "DM Sans", sans-serif;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
         }
 
-        .search-btn:hover,
-        .filter-btn:hover {
-            background: #68333d;
+        .search-button:hover {
+            border-color: var(--red-dark);
+            background: var(--red-dark);
         }
 
-        .category-select {
-            padding: 13px 15px;
-            border: 1px solid #e5d9d0;
-            border-radius: 8px;
-            background: white;
-            font-family: inherit;
-            min-width: 210px;
-            outline: none;
-        }
-
-        .clear-link {
-            color: #9b6259;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 10px;
-        }
-
-        .results-heading {
+        .clear-button {
+            height: 50px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition:
+                border-color 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .clear-button:hover {
+            border-color: var(--charcoal);
+            color: var(--charcoal);
+        }
+
+        /* RESULTS HEADER */
+
+        .results-header {
+            display: flex;
+            align-items: flex-end;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 22px;
+            gap: 20px;
+            margin-bottom: 25px;
         }
 
-        .results-heading h2 {
-            font-family: 'Cormorant Garamond', serif;
-            color: #4b2029;
-            font-size: 30px;
+        .results-header h2 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1;
         }
 
-        .results-heading p {
-            font-size: 13px;
-            color: #8a7d76;
+        .results-count {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
+
+        /* BOOK GRID */
 
         .book-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 22px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
 
         .book-card {
-            background: #fff;
-            border: 1px solid #eee5dc;
-            border-radius: 13px;
-            overflow: hidden;
+            min-height: 400px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
-            transition: transform .2s, box-shadow .2s;
+            border: 1px solid var(--border);
+            background: var(--white);
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
         }
 
         .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(60, 35, 30, .08);
+            transform: translateY(-3px);
+            border-color: rgba(155, 61, 74, 0.35);
+            box-shadow: 0 15px 35px rgba(50, 40, 35, 0.07);
         }
 
-        .book-cover {
-            min-height: 175px;
-            padding: 22px;
-            background: linear-gradient(135deg, #542832, #8b5159);
-            color: white;
+        .book-top {
             display: flex;
-            flex-direction: column;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 38px;
         }
 
-        .book-cover.placeholder {
-            background: linear-gradient(135deg, #344b53, #718d8d);
+        .book-number {
+            color: #a9a19a;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 22px;
         }
 
-        .cover-label {
-            font-size: 10px;
+        .book-category {
+            padding: 6px 9px;
+            border: 1px solid rgba(155, 61, 74, 0.2);
+            color: var(--red);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: .8;
         }
 
-        .cover-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 25px;
-            line-height: 1.15;
-            font-weight: 700;
-            max-width: 250px;
-        }
-
-        .cover-footer {
-            font-size: 10px;
-            letter-spacing: 1px;
-            opacity: .8;
-        }
-
-        .book-details {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+        .book-info {
             flex: 1;
-        }
-
-        .category-tag {
-            align-self: flex-start;
-            background: #f2e7df;
-            color: #8b5159;
-            border-radius: 20px;
-            padding: 6px 10px;
-            font-size: 10px;
-            font-weight: 700;
-            margin-bottom: 13px;
         }
 
         .book-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 23px;
-            line-height: 1.2;
-            color: #4b2029;
-            margin-bottom: 7px;
+            margin-bottom: 9px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 0.98;
         }
 
         .book-author {
-            color: #98766b;
+            margin-bottom: 22px;
+            color: var(--red);
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 12px;
         }
 
         .book-description {
-            color: #786d68;
-            font-size: 13px;
-            line-height: 1.6;
-            margin-bottom: 18px;
-            flex: 1;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
         }
 
         .book-actions {
             display: flex;
             flex-direction: column;
-            gap: 9px;
-            margin-top: auto;
+            gap: 8px;
+            margin-top: 28px;
         }
 
-        .action-btn {
-            display: block;
+        .download-button,
+        .save-button,
+        .saved-button {
+            min-height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
             text-align: center;
-            border-radius: 7px;
-            padding: 11px 12px;
-            font-size: 12px;
-            font-weight: 700;
-            transition: .2s;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
         }
 
-        .download-btn {
-            background: #4b2029;
-            color: white;
+        .download-button {
+            border: 1px solid var(--red);
+            background: var(--red);
+            color: var(--white);
         }
 
-        .download-btn:hover {
-            background: #68333d;
+        .download-button:hover {
+            border-color: var(--red-dark);
+            background: var(--red-dark);
         }
 
-        .save-btn {
-            border: 1px solid #d9c4b6;
-            color: #754b43;
-            background: white;
+        .save-button {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--charcoal);
         }
 
-        .save-btn:hover {
-            background: #f8f0e9;
+        .save-button:hover {
+            border-color: var(--red);
+            color: var(--red);
         }
 
-        .saved-btn {
-            background: #e7eee7;
-            color: #49664d;
+        .saved-button {
+            border: 1px solid rgba(83, 102, 75, 0.25);
+            background: #f1f4ee;
+            color: #53664b;
             cursor: default;
         }
 
-        .placeholder-btn {
-            background: #edf0f0;
-            color: #61777a;
-            cursor: default;
+        /* PLACEHOLDER BOOKS */
+
+        .placeholder-button {
+            min-height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            background: var(--cream);
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
         }
+
+        .login-save {
+            padding: 12px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .login-save a {
+            color: var(--red);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .login-save a:hover {
+            text-decoration: underline;
+        }
+
+        /* EMPTY STATE */
 
         .empty-state {
-            background: white;
-            border: 1px solid #eee5dc;
-            padding: 50px 20px;
-            border-radius: 13px;
+            padding: 80px 30px;
+            border: 1px solid var(--border);
+            background: var(--white);
             text-align: center;
-            grid-column: 1 / -1;
         }
 
         .empty-state h3 {
-            font-family: 'Cormorant Garamond', serif;
-            color: #4b2029;
-            font-size: 28px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 38px;
+            font-weight: 600;
         }
 
         .empty-state p {
-            color: #8a7d76;
+            color: var(--muted);
             font-size: 13px;
+            line-height: 1.7;
         }
 
-        footer {
-            background: #4b2029;
-            color: #e8d9d3;
-            text-align: center;
-            padding: 25px 7%;
-            font-size: 12px;
+        /* FOOTER */
+
+        .footer {
+            margin-top: 80px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            color: #918982;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        @media (max-width: 950px) {
+        /* RESPONSIVE */
+
+        @media (max-width: 1000px) {
+
             .book-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(2, 1fr);
             }
+
+            .search-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 850px) {
+
             .navbar {
-                align-items: flex-start;
-                flex-direction: column;
+                padding: 0 6%;
             }
 
-            .nav-links {
-                flex-wrap: wrap;
-                gap: 14px;
+            .nav-right {
+                gap: 15px;
             }
 
-            .hero h1 {
-                font-size: 40px;
+            .nav-link {
+                display: none;
             }
+
+            .main {
+                width: 88%;
+                padding-top: 55px;
+            }
+
+            .page-header {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+        }
+
+        @media (max-width: 650px) {
 
             .book-grid {
                 grid-template-columns: 1fr;
             }
 
-            .filter-section {
-                align-items: stretch;
-                flex-direction: column;
-            }
-
             .search-form {
-                width: 100%;
+                grid-template-columns: 1fr;
             }
 
-            .category-select,
-            .search-btn {
-                width: 100%;
+            .results-header {
+                display: block;
             }
+
+            .results-count {
+                display: block;
+                margin-top: 8px;
+            }
+
         }
+
+        @media (max-width: 500px) {
+
+            .navbar {
+                height: 70px;
+            }
+
+            .brand {
+                font-size: 28px;
+            }
+
+            .logout-link {
+                padding: 9px 13px;
+            }
+
+            .main {
+                padding: 45px 0 70px;
+            }
+
+            .page-header {
+                padding-bottom: 45px;
+            }
+
+            .page-header h1 {
+                font-size: 60px;
+            }
+
+            .search-section {
+                padding: 35px 0 45px;
+            }
+
+            .book-card {
+                min-height: 370px;
+                padding: 25px;
+            }
+
+            .footer {
+                display: block;
+                line-height: 2;
+            }
+
+        }
+
     </style>
+
 </head>
 
 <body>
 
 <nav class="navbar">
 
-    <a href="<?= $isLoggedIn ? 'dashboard.php' : 'index.php' ?>" class="logo">
-        Digitalia<span>.</span>
+    <a
+        href="<?php echo $isLoggedIn ? 'dashboard.php' : 'guest.php'; ?>"
+        class="brand"
+    >
+        Digit<span>alia</span>
     </a>
 
-    <div class="nav-links">
-
-        <a href="books.php" class="active">Browse Books</a>
+    <div class="nav-right">
 
         <?php if ($isLoggedIn): ?>
 
-            <a href="my-library.php">My Library</a>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="logout.php">Logout</a>
+            <a
+                href="dashboard.php"
+                class="nav-link"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="my-library.php"
+                class="nav-link"
+            >
+                My Library
+            </a>
+
+            <a
+                href="logout.php"
+                class="logout-link"
+            >
+                Log Out
+            </a>
 
         <?php else: ?>
 
-            <a href="login.php">Login</a>
-            <a href="register.php">Register</a>
+            <a
+                href="guest.php"
+                class="nav-link"
+            >
+                Guest Home
+            </a>
+
+            <a
+                href="login.php"
+                class="nav-link"
+            >
+                Log In
+            </a>
+
+            <a
+                href="register.php"
+                class="logout-link"
+            >
+                Create Account
+            </a>
 
         <?php endif; ?>
 
@@ -836,187 +1096,231 @@ $totalPlaceholders = count($placeholderBooks);
 
 </nav>
 
-<section class="hero">
 
-    <div class="eyebrow">Information Technology Library</div>
+<main class="main">
 
-    <h1>Explore IT Knowledge.</h1>
+    <section class="page-header">
 
-    <p>
-        Discover learning resources covering programming, web development,
-        mobile applications, databases, cybersecurity, artificial intelligence,
-        networking, software engineering, and other fields of Information Technology.
-    </p>
+        <div>
 
-    <div class="catalog-info">
+            <div class="eyebrow">
+                Information Technology Collection
+            </div>
 
-        <span class="info-pill">
-            <?= $totalPlaceholders ?> IT Placeholder Books
-        </span>
-
-        <span class="info-pill">
-            <?= count($categories) ?> IT Categories
-        </span>
-
-        <span class="info-pill">
-            Explore. Learn. Innovate.
-        </span>
-
-    </div>
-
-</section>
-
-<main class="content">
-
-    <form method="GET" action="books.php" class="filter-section">
-
-        <div class="search-form">
-
-            <input
-                type="text"
-                name="search"
-                placeholder="Search IT books, authors, or topics..."
-                value="<?= escapeOutput($search) ?>"
-            >
-
-            <button type="submit" class="search-btn">
-                Search
-            </button>
+            <h1>
+                Discover
+                <span>something.</span>
+            </h1>
 
         </div>
 
-        <select
-            name="category"
-            class="category-select"
-            onchange="this.form.submit()"
-        >
-
-            <option value="">All IT Categories</option>
-
-            <?php foreach ($categories as $category): ?>
-
-                <option
-                    value="<?= escapeOutput($category) ?>"
-                    <?= $selectedCategory === $category ? 'selected' : '' ?>
-                >
-                    <?= escapeOutput($category) ?>
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-        <?php if ($search !== '' || $selectedCategory !== ''): ?>
-
-            <a href="books.php" class="clear-link">
-                Clear Filters
-            </a>
-
-        <?php endif; ?>
-
-    </form>
-
-    <div class="results-heading">
-
-        <h2>IT Book Collection</h2>
-
-        <p>
-            <?= $totalBooks ?> book<?= $totalBooks === 1 ? '' : 's' ?> found
+        <p class="page-description">
+            Explore a collection of Information Technology books
+            covering programming, web development, cybersecurity,
+            networking, databases, artificial intelligence,
+            software engineering, and more. Find resources
+            to support your learning and technical growth.
         </p>
 
-    </div>
+    </section>
 
-    <div class="book-grid">
 
-        <?php if (empty($allBooks)): ?>
+    <section class="search-section">
 
-            <div class="empty-state">
+        <form
+            method="GET"
+            class="search-form"
+        >
 
-                <h3>No Books Found</h3>
+            <div class="input-wrap">
 
-                <p>
-                    Try another keyword or select a different IT category.
-                </p>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    class="search-input"
+                    placeholder="Search IT books by title or author..."
+                    value="<?php echo htmlspecialchars($search); ?>"
+                >
 
             </div>
 
-        <?php else: ?>
 
-            <?php foreach ($allBooks as $book): ?>
+            <select
+                id="category"
+                name="category"
+                class="category-select"
+            >
 
-                <?php
+                <option value="">
+                    All IT Categories
+                </option>
+
+                <?php foreach ($categories as $bookCategory): ?>
+
+                    <option
+                        value="<?php echo htmlspecialchars($bookCategory); ?>"
+                        <?php echo ($category === $bookCategory) ? 'selected' : ''; ?>
+                    >
+                        <?php echo htmlspecialchars($bookCategory); ?>
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="search-button"
+            >
+                Search
+            </button>
+
+
+            <a
+                href="books.php"
+                class="clear-button"
+            >
+                Clear
+            </a>
+
+        </form>
+
+    </section>
+
+
+    <section>
+
+        <div class="results-header">
+
+            <h2>
+                IT Books Collection
+            </h2>
+
+            <div class="results-count">
+
+                <?php echo count($books); ?>
+
+                <?php echo count($books) === 1 ? 'book' : 'books'; ?>
+
+                found
+
+            </div>
+
+        </div>
+
+
+        <?php if (count($books) > 0): ?>
+
+            <div class="book-grid">
+
+                <?php foreach ($books as $index => $book): ?>
+
+                    <?php
+
                     $isPlaceholder = !empty($book['is_placeholder']);
-                    $bookId = $book['id'];
-                    $isSaved = !$isPlaceholder &&
-                        in_array((int) $bookId, $favorites, true);
-                ?>
 
-                <article class="book-card">
+                    ?>
 
-                    <div class="book-cover <?= $isPlaceholder ? 'placeholder' : '' ?>">
+                    <article class="book-card">
 
-                        <div class="cover-label">
-                            Digitalia IT Library
+                        <div class="book-top">
+
+                            <div class="book-number">
+
+                                <?php
+                                echo str_pad(
+                                    $index + 1,
+                                    2,
+                                    '0',
+                                    STR_PAD_LEFT
+                                );
+                                ?>
+
+                            </div>
+
+                            <div class="book-category">
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $book['category'] ?? ''
+                                );
+                                ?>
+
+                            </div>
+
                         </div>
 
-                        <div class="cover-title">
-                            <?= escapeOutput($book['title']) ?>
+
+                        <div class="book-info">
+
+                            <h3 class="book-title">
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $book['title'] ?? ''
+                                );
+                                ?>
+
+                            </h3>
+
+
+                            <div class="book-author">
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $book['author'] ?? ''
+                                );
+                                ?>
+
+                            </div>
+
+
+                            <p class="book-description">
+
+                                <?php
+                                echo htmlspecialchars(
+                                    $book['description'] ?? ''
+                                );
+                                ?>
+
+                            </p>
+
                         </div>
 
-                        <div class="cover-footer">
-                            EXPLORE · LEARN · INNOVATE
-                        </div>
-
-                    </div>
-
-                    <div class="book-details">
-
-                        <span class="category-tag">
-                            <?= escapeOutput($book['category']) ?>
-                        </span>
-
-                        <h3 class="book-title">
-                            <?= escapeOutput($book['title']) ?>
-                        </h3>
-
-                        <p class="book-author">
-                            By <?= escapeOutput($book['author']) ?>
-                        </p>
-
-                        <p class="book-description">
-                            <?= escapeOutput($book['description']) ?>
-                        </p>
 
                         <div class="book-actions">
 
                             <?php if ($isPlaceholder): ?>
 
-                                <span class="action-btn placeholder-btn">
+                                <div class="placeholder-button">
                                     Book Content Coming Soon
-                                </span>
+                                </div>
 
                             <?php else: ?>
 
                                 <a
-                                    href="download.php?book_id=<?= (int) $bookId ?>"
-                                    class="action-btn download-btn"
+                                    href="download.php?book_id=<?php echo (int) $book['id']; ?>"
+                                    class="download-button"
                                 >
                                     Download Book
                                 </a>
 
+
                                 <?php if ($isLoggedIn): ?>
 
-                                    <?php if ($isSaved): ?>
+                                    <?php if (in_array($book['id'], $savedBooks)): ?>
 
-                                        <span class="action-btn saved-btn">
+                                        <div class="saved-button">
                                             Already in My Library
-                                        </span>
+                                        </div>
 
                                     <?php else: ?>
 
                                         <a
-                                            href="add-favorite.php?book_id=<?= (int) $bookId ?>"
-                                            class="action-btn save-btn"
+                                            href="add-favorite.php?book_id=<?php echo (int) $book['id']; ?>"
+                                            class="save-button"
                                         >
                                             Save to My Library
                                         </a>
@@ -1025,12 +1329,15 @@ $totalPlaceholders = count($placeholderBooks);
 
                                 <?php else: ?>
 
-                                    <a
-                                        href="login.php"
-                                        class="action-btn save-btn"
-                                    >
-                                        Login to Save Book
-                                    </a>
+                                    <div class="login-save">
+
+                                        <a href="login.php">
+                                            Log in
+                                        </a>
+
+                                        to save this IT book
+
+                                    </div>
 
                                 <?php endif; ?>
 
@@ -1038,21 +1345,46 @@ $totalPlaceholders = count($placeholderBooks);
 
                         </div>
 
-                    </div>
+                    </article>
 
-                </article>
+                <?php endforeach; ?>
 
-            <?php endforeach; ?>
+            </div>
+
+        <?php else: ?>
+
+            <div class="empty-state">
+
+                <h3>
+                    No IT books found.
+                </h3>
+
+                <p>
+                    We couldn't find any books matching your search.
+                    Try another title, author, or IT category.
+                </p>
+
+            </div>
 
         <?php endif; ?>
 
-    </div>
+    </section>
+
+
+    <footer class="footer">
+
+        <span>
+            Digitalia
+        </span>
+
+        <span>
+            Explore · Learn · Innovate
+        </span>
+
+    </footer>
 
 </main>
 
-<footer>
-    Digitalia IT Library · Explore. Learn. Innovate.
-</footer>
-
 </body>
+
 </html>
