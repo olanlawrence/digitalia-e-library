@@ -25,7 +25,7 @@ $role = $_SESSION['role'];
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Dashboard - Digitalia</title>
+    <title>Dashboard - Digitalia IT Library</title>
 
     <link
         rel="preconnect"
@@ -560,7 +560,7 @@ $role = $_SESSION['role'];
         <div>
 
             <div class="eyebrow">
-                Your Digital Library
+                Your Digital IT Library
             </div>
 
             <h1>
@@ -573,8 +573,10 @@ $role = $_SESSION['role'];
         </div>
 
         <p class="hero-description">
-            Discover books, build your personal collection,
-            and keep everything you love to read in one place.
+            Explore the world of Information Technology through
+            books on programming, cybersecurity, networking,
+            databases, artificial intelligence, and software development.
+            Build your knowledge, one book at a time.
         </p>
 
     </section>
@@ -586,12 +588,12 @@ $role = $_SESSION['role'];
 
             <div>
                 <h2>
-                    Your Library
+                    Your IT Library
                 </h2>
             </div>
 
             <p>
-                Explore and manage your collection
+                Discover and organize your technical resources
             </p>
 
         </div>
@@ -611,12 +613,13 @@ $role = $_SESSION['role'];
                 <div class="card-content">
 
                     <h3>
-                        Browse Books
+                        Browse IT Books
                     </h3>
 
                     <p>
-                        Explore the Digitalia collection
-                        and find your next book to read.
+                        Explore books covering programming,
+                        web development, cybersecurity, networking,
+                        databases, and other IT-related topics.
                     </p>
 
                 </div>
@@ -644,8 +647,9 @@ $role = $_SESSION['role'];
                     </h3>
 
                     <p>
-                        View the books you have saved
-                        and keep your personal collection organized.
+                        Access your saved IT books and organize
+                        your personal collection of technical
+                        learning resources.
                     </p>
 
                 </div>
@@ -673,8 +677,9 @@ $role = $_SESSION['role'];
                     </h3>
 
                     <p>
-                        View the books you have downloaded
-                        and access your download history anytime.
+                        Review your downloaded IT books and
+                        keep track of the technical resources
+                        you have accessed.
                     </p>
 
                 </div>
@@ -701,7 +706,7 @@ $role = $_SESSION['role'];
             </div>
 
             <p>
-                Your Digitalia profile
+                Your Digitalia profile information
             </p>
 
         </div>
@@ -767,10 +772,11 @@ $role = $_SESSION['role'];
                 </h3>
 
                 <p>
-                    Your future reading companion will help you
-                    search the library, compare books, discover
-                    recommendations, and manage your collection
-                    through natural-language conversations.
+                    Your AI-powered learning companion will help
+                    you discover relevant IT books, explore technical
+                    concepts, compare learning resources, and receive
+                    personalized recommendations through
+                    natural-language conversations.
                 </p>
 
             </div>
@@ -791,7 +797,7 @@ $role = $_SESSION['role'];
         </span>
 
         <span>
-            Your personal digital library
+            Explore · Learn · Innovate
         </span>
 
     </footer>
