@@ -90,7 +90,7 @@ if ($isLoggedIn) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Books - Digitalia</title>
+    <title>Browse IT Books - Digitalia</title>
 
     <link
         rel="preconnect"
@@ -718,7 +718,7 @@ if ($isLoggedIn) {
         <div>
 
             <div class="eyebrow">
-                Digitalia Collection
+                Information Technology Collection
             </div>
 
             <h1>
@@ -729,9 +729,11 @@ if ($isLoggedIn) {
         </div>
 
         <p class="page-description">
-            Explore the Digitalia collection by title,
-            author, or category. Find books to read,
-            download, and keep in your personal library.
+            Explore a collection of Information Technology books
+            covering programming, web development, cybersecurity,
+            networking, databases, artificial intelligence,
+            software engineering, and more. Find resources
+            to support your learning and technical growth.
         </p>
 
     </section>
@@ -751,7 +753,7 @@ if ($isLoggedIn) {
                     id="search"
                     name="search"
                     class="search-input"
-                    placeholder="Search by title or author..."
+                    placeholder="Search IT books by title or author..."
                     value="<?php echo htmlspecialchars($search); ?>"
                 >
 
@@ -765,7 +767,7 @@ if ($isLoggedIn) {
             >
 
                 <option value="">
-                    All Categories
+                    All IT Categories
                 </option>
 
                 <?php foreach ($categories as $bookCategory): ?>
@@ -807,7 +809,7 @@ if ($isLoggedIn) {
         <div class="results-header">
 
             <h2>
-                Available Books
+                IT Books Collection
             </h2>
 
             <div class="results-count">
@@ -933,7 +935,7 @@ if ($isLoggedIn) {
                                         Log in
                                     </a>
 
-                                    to save this book
+                                    to save this IT book
 
                                 </div>
 
@@ -952,12 +954,12 @@ if ($isLoggedIn) {
             <div class="empty-state">
 
                 <h3>
-                    No books found.
+                    No IT books found.
                 </h3>
 
                 <p>
-                    Try adjusting your search or selecting
-                    a different category.
+                    We couldn't find any books matching your search.
+                    Try another title, author, or IT category.
                 </p>
 
             </div>
@@ -974,7 +976,7 @@ if ($isLoggedIn) {
         </span>
 
         <span>
-            Your personal digital library
+            Explore · Learn · Innovate
         </span>
 
     </footer>
