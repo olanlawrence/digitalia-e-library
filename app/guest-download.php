@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -84,7 +85,7 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Your Downloads - Digitalia</title>
+    <title>My Downloads - Digitalia</title>
 
     <link
         rel="preconnect"
@@ -523,6 +524,14 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
                 font-size: 28px;
             }
 
+            .download-time {
+                grid-column: 2;
+                padding-left: 0;
+                padding-top: 15px;
+                border-left: 0;
+                border-top: 1px solid var(--border);
+            }
+
             .footer {
                 display: block;
                 line-height: 2;
@@ -613,18 +622,18 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
     <section class="page-header">
 
         <div class="eyebrow">
-            Guest Activity
+            Your Guest Activity
         </div>
 
         <h1>
-            Your
+            My
             <span>Downloads.</span>
         </h1>
 
         <p class="page-description">
-            These are the books you have downloaded during
-            your current guest session. Your guest downloads
-            are limited to five books.
+            Keep track of the books you've downloaded during
+            your current guest session. Guest users can download
+            up to five books per session.
         </p>
 
     </section>
@@ -674,7 +683,7 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
         <div class="section-heading">
 
             <h2>
-                Download History
+                Your Download History
             </h2>
 
             <div class="section-count">
@@ -716,7 +725,9 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $download['category']
+                                    $download['category'],
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -726,7 +737,9 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $download['title']
+                                    $download['title'],
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -736,7 +749,9 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $download['author']
+                                    $download['author'],
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -777,12 +792,13 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
             <div class="empty-state">
 
                 <h3>
-                    Nothing downloaded yet.
+                    Your reading journey starts here.
                 </h3>
 
                 <p>
-                    Browse the Digitalia collection and download
-                    a book to see your activity here.
+                    Explore the Digitalia collection and download
+                    your first book to start building your
+                    reading history.
                 </p>
 
                 <div class="actions">
@@ -833,7 +849,7 @@ $_SESSION['guest_downloads'] = $guestDownloadCount;
         </span>
 
         <span>
-            Guest activity
+            Your personal digital library
         </span>
 
     </footer>
