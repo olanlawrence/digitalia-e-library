@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $message = "Registration successful!";
+
         }
     }
 }
@@ -71,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Register - Digitalia</title>
+    <title>Register - Digitalia IT Library</title>
 
     <link
         rel="preconnect"
@@ -443,28 +444,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <h1>
-
-                Begin your
+                Build your
                 <span>
-                    collection.
+                    IT library.
                 </span>
-
             </h1>
 
             <p>
-                Create your Digitalia account and
-                build a personal space for the books
-                you want to discover, read, and keep.
+                Create your Digitalia account and build
+                a personal collection of Information Technology
+                books and technical learning resources.
             </p>
 
         </div>
 
         <div class="visual-footer">
-            Your personal digital library
+            Your personal IT learning library
         </div>
 
     </section>
-
 
     <main class="form-panel">
 
@@ -477,7 +475,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ← Back to Digitalia
             </a>
 
-
             <div class="form-header">
 
                 <div class="eyebrow">
@@ -489,19 +486,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </h2>
 
                 <p>
-                    Join Digitalia to save books,
-                    manage your personal library,
-                    and continue your reading journey.
+                    Join Digitalia to save IT books,
+                    organize your learning resources,
+                    and continue developing your technology skills.
                 </p>
 
             </div>
 
-
             <?php if ($message): ?>
 
                 <?php
+
                 $isSuccess =
                     $message === "Registration successful!";
+
                 ?>
 
                 <div
@@ -515,7 +513,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
             <?php endif; ?>
-
 
             <form method="POST">
 
@@ -536,7 +533,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </div>
 
-
                 <div class="form-group">
 
                     <label for="email">
@@ -553,7 +549,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     >
 
                 </div>
-
 
                 <div class="form-group">
 
@@ -576,7 +571,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </div>
 
-
                 <button
                     type="submit"
                     class="submit-button"
@@ -585,7 +579,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </button>
 
             </form>
-
 
             <p class="login-link">
 
