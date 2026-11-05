@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -10,6 +11,16 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/config/database.php';
 
 $user_id = $_SESSION['user_id'];
+
+/*
+ * Generate CSRF token for secure delete requests.
+ */
+
+if (empty($_SESSION['download_csrf_token'])) {
+    $_SESSION['download_csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrfToken = $_SESSION['download_csrf_token'];
 
 /*
  * Get all downloads belonging to the logged-in user.
@@ -336,20 +347,27 @@ $downloadCount = count($downloads);
             gap: 10px;
         }
 
-        .download-button {
+        .download-button,
+        .delete-button {
             display: inline-block;
             padding: 11px 18px;
-            border: 1px solid var(--red);
-            background: var(--red);
-            color: var(--white);
+            font-family: "DM Sans", sans-serif;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 1px;
             text-decoration: none;
             text-transform: uppercase;
+            cursor: pointer;
             transition:
                 background 0.2s ease,
-                border-color 0.2s ease;
+                border-color 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .download-button {
+            border: 1px solid var(--red);
+            background: var(--red);
+            color: var(--white);
         }
 
         .download-button:visited {
@@ -359,6 +377,22 @@ $downloadCount = count($downloads);
         .download-button:hover {
             border-color: var(--red-dark);
             background: var(--red-dark);
+        }
+
+        .delete-button {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--red);
+        }
+
+        .delete-button:hover {
+            border-color: var(--red);
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .delete-form {
+            margin: 0;
         }
 
         /* EMPTY STATE */
@@ -469,6 +503,7 @@ $downloadCount = count($downloads);
 
             .download-action {
                 grid-column: 2;
+                flex-wrap: wrap;
             }
 
         }
@@ -531,11 +566,16 @@ $downloadCount = count($downloads);
 
             .download-action {
                 grid-column: 2;
+                width: 100%;
+            }
+
+            .download-button,
+            .delete-button {
+                text-align: center;
             }
 
             .download-button {
-                width: 100%;
-                text-align: center;
+                flex: 1;
             }
 
             .empty-state {
@@ -692,23 +732,27 @@ $downloadCount = count($downloads);
                         <div class="download-info">
 
                             <div class="download-category">
-                                <?php echo htmlspecialchars($download['category']); ?>
+                                <?php echo htmlspecialchars($download['category'], ENT_QUOTES, 'UTF-8'); ?>
                             </div>
 
                             <div class="download-title">
-                                <?php echo htmlspecialchars($download['title']); ?>
+                                <?php echo htmlspecialchars($download['title'], ENT_QUOTES, 'UTF-8'); ?>
                             </div>
 
                             <div class="download-author">
-                                by <?php echo htmlspecialchars($download['author']); ?>
+                                by <?php echo htmlspecialchars($download['author'], ENT_QUOTES, 'UTF-8'); ?>
                             </div>
 
                             <div class="download-date">
                                 Downloaded
                                 <?php
-                                echo date(
-                                    'F j, Y · g:i A',
-                                    strtotime($download['downloaded_at'])
+                                echo htmlspecialchars(
+                                    date(
+                                        'F j, Y · g:i A',
+                                        strtotime($download['downloaded_at'])
+                                    ),
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
                             </div>
@@ -724,6 +768,34 @@ $downloadCount = count($downloads);
                             >
                                 Download Again
                             </a>
+
+                            <form
+                                action="delete-download.php"
+                                method="POST"
+                                class="delete-form"
+                                onsubmit="return confirm('Are you sure you want to remove this book from your download history?');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="download_id"
+                                    value="<?php echo (int) $download['download_id']; ?>"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="delete-button"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
 
                         </div>
 
