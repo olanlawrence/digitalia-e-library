@@ -1,35 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Digitalia | IT Digital Library</title>
 
-    <title>Digitalia - E-Library</title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -297,7 +278,6 @@
         }
 
         @media (max-width: 900px) {
-
             header {
                 padding: 24px 6%;
             }
@@ -318,11 +298,9 @@
             h1 {
                 font-size: clamp(60px, 14vw, 90px);
             }
-
         }
 
         @media (max-width: 600px) {
-
             header {
                 padding: 20px 5%;
             }
@@ -374,143 +352,95 @@
             .circle-detail {
                 right: 0;
             }
-
         }
-
     </style>
-
 </head>
 
 <body>
 
 <header>
-
-    <a
-        href="index.php"
-        class="logo"
-    >
+    <a href="index.php" class="logo">
         DIGITALIA
     </a>
 
     <span class="header-label">
-        Digital Library
+        Information Technology Library
     </span>
-
 </header>
 
-
 <main class="hero">
-
     <div class="hero-content">
 
-
         <section>
-
             <div class="eyebrow">
-
                 <span class="eyebrow-line"></span>
-
-                Your Digital Library
-
+                Your Digital IT Library
             </div>
 
-
             <h1>
-
-                Discover.
-                <span class="highlight">
-                    Read.
-                </span>
                 Explore.
-
+                <span class="highlight">
+                    Learn.
+                </span>
+                Innovate.
             </h1>
 
-
             <p class="description">
-
-                A modern digital library designed to make
-                discovering, exploring, and accessing books
-                simple — wherever you are.
-
+                Discover a digital collection of Information Technology
+                books and learning resources covering programming,
+                cybersecurity, networking, databases, artificial
+                intelligence, and software development.
             </p>
 
-
             <div class="buttons">
-
-                <a
-                    href="login.php"
-                    class="button primary"
-                >
+                <a href="login.php" class="button primary">
                     Log In
                 </a>
 
-
-                <a
-                    href="register.php"
-                    class="button secondary"
-                >
+                <a href="register.php" class="button secondary">
                     Create an Account
                 </a>
 
-
-                <a
-                    href="guest.php"
-                    class="button guest"
-                >
+                <a href="guest.php" class="button guest">
                     Continue as Guest
                 </a>
-
             </div>
-
 
             <p class="footer-note">
                 Available across web and Android platforms.
             </p>
-
         </section>
 
-
         <section class="hero-visual">
-
             <div class="circle-detail"></div>
 
-
             <div class="book-frame">
-
                 <div class="book-cover">
 
                     <div class="book-top">
-                        Digitalia Library
+                        Digitalia IT Library
                     </div>
-
 
                     <div class="book-title">
-                        A world
-                        of stories
-                        awaits.
+                        Knowledge
+                        builds
+                        innovation.
                     </div>
 
-
                     <div class="book-bottom">
-                        Read · Discover · Learn
+                        Code · Learn · Innovate
                     </div>
 
                 </div>
-
             </div>
-
 
             <div class="small-note">
-                200+ books to discover
+                200+ IT books to explore
             </div>
-
         </section>
 
-
     </div>
-
 </main>
 
 </body>
-
 </html>
