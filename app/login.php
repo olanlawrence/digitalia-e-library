@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login - Digitalia</title>
+    <title>Login - Digitalia IT Library</title>
 
     <link
         rel="preconnect"
@@ -464,9 +464,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </h1>
 
             <p>
-                Return to your personal digital library
-                and continue discovering books,
-                stories, and knowledge.
+                Continue exploring Information Technology
+                books and technical learning resources in
+                your Digitalia library.
             </p>
 
         </div>
@@ -474,11 +474,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="decorative-circle"></div>
 
         <div class="visual-footer">
-            Discover · Read · Explore
+            Explore · Learn · Innovate
         </div>
 
     </section>
-
 
     <main class="form-panel">
 
@@ -491,7 +490,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ← Back to Digitalia
             </a>
 
-
             <div class="form-header">
 
                 <div class="eyebrow">
@@ -503,12 +501,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </h2>
 
                 <p>
-                    Enter your account details to
-                    access your Digitalia library.
+                    Enter your account details to access
+                    your IT books and saved learning resources.
                 </p>
 
             </div>
-
 
             <?php if ($message): ?>
 
@@ -521,7 +518,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
             <?php endif; ?>
-
 
             <form method="POST">
 
@@ -542,7 +538,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </div>
 
-
                 <div class="form-group">
 
                     <label for="password">
@@ -560,7 +555,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </div>
 
-
                 <button
                     type="submit"
                     class="submit-button"
@@ -569,7 +563,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </button>
 
             </form>
-
 
             <p class="register-link">
 
