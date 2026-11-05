@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -7,7 +8,7 @@ if (!isset($_SESSION['guest'])) {
     $_SESSION['guest_downloads'] = 0;
 }
 
-$guestDownloads = $_SESSION['guest_downloads'];
+$guestDownloads = (int) $_SESSION['guest_downloads'];
 $remainingDownloads = max(0, 5 - $guestDownloads);
 
 ?>
@@ -570,9 +571,10 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
             </h1>
 
             <p class="hero-description">
-                Browse the Digitalia collection without creating
-                an account. Discover books and download what
-                interests you while keeping your experience simple.
+                Explore the Digitalia collection without creating
+                an account. Browse available books, discover new
+                titles, and download books during your current
+                guest session.
             </p>
 
         </div>
@@ -581,7 +583,7 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
         <div class="limit-card">
 
             <div class="limit-label">
-                Guest Downloads
+                Downloads Used
             </div>
 
             <div class="limit-number">
@@ -595,9 +597,9 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
             </div>
 
             <p class="limit-text">
-                Guest accounts can download up to five books.
-                Create an account to unlock a larger personal
-                library experience.
+                Guest users can download up to five books per session.
+                Create an account to save books to your personal
+                library and enjoy more features.
             </p>
 
             <div class="progress">
@@ -656,9 +658,9 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
                     </h3>
 
                     <p>
-                        Explore available titles, search by
-                        author or title, and filter the collection
-                        by category.
+                        Explore the available collection, search
+                        for books by title or author, and discover
+                        titles across different categories.
                     </p>
 
                 </div>
@@ -676,19 +678,19 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
             >
 
                 <div class="action-label">
-                    Your Activity
+                    Your Guest Activity
                 </div>
 
                 <div class="action-content">
 
                     <h3>
-                        Your Downloads
+                        My Downloads
                     </h3>
 
                     <p>
-                        View the books you have downloaded during
+                        View the books you've downloaded during
                         your current guest session and keep track
-                        of your remaining downloads.
+                        of your download history.
                     </p>
 
                 </div>
@@ -716,8 +718,9 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
                     </h3>
 
                     <p>
-                        Save books to your personal library and
-                        keep your favorite titles organized in one place.
+                        Save books to your personal library,
+                        organize your favorite titles, and keep
+                        track of your reading collection.
                     </p>
 
                 </div>
@@ -744,9 +747,9 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
                 </h3>
 
                 <p>
-                    Create a Digitalia account to save books,
-                    build your personal collection, and enjoy
-                    a more complete library experience.
+                    Create a Digitalia account to build your
+                    personal library, save your favorite books,
+                    and enjoy a more complete reading experience.
                 </p>
 
             </div>
@@ -782,7 +785,7 @@ $remainingDownloads = max(0, 5 - $guestDownloads);
         </span>
 
         <span>
-            Guest access
+            Your Personal Digital Library
         </span>
 
     </footer>
